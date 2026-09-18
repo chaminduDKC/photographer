@@ -9,7 +9,7 @@ const IS_PROD = env.NODE_ENV === 'production';
 const ACCESS_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: IS_PROD,
-  sameSite: 'lax' as const,
+  sameSite: IS_PROD ? ('none' as const) : ('lax' as const),
   path: '/',
   maxAge: 15 * 60 * 1000,
 };
@@ -17,9 +17,16 @@ const ACCESS_COOKIE_OPTIONS = {
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: IS_PROD,
-  sameSite: 'lax' as const,
+  sameSite: IS_PROD ? ('none' as const) : ('lax' as const),
   path: '/',
   maxAge: 30 * 24 * 60 * 60 * 1000,
+};
+
+const CLEAR_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: IS_PROD,
+  sameSite: IS_PROD ? ('none' as const) : ('lax' as const),
+  path: '/',
 };
 
 export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -44,8 +51,8 @@ export async function refresh(req: Request, res: Response, next: NextFunction): 
   try {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
     if (!refreshToken) {
-      res.clearCookie('accessToken', { path: '/' });
-      res.clearCookie('refreshToken', { path: '/' });
+      res.clearCookie('accessToken', CLEAR_COOKIE_OPTIONS);
+      res.clearCookie('refreshToken', CLEAR_COOKIE_OPTIONS);
       errorResponse(res, 'Refresh token missing', 401, 'REFRESH_FAILED');
       return;
     }
@@ -55,8 +62,8 @@ export async function refresh(req: Request, res: Response, next: NextFunction): 
     successResponse(res, { admin }, 'Token refreshed');
   } catch (err) {
     if (err instanceof Error && err.message === 'INVALID_REFRESH_TOKEN') {
-      res.clearCookie('accessToken', { path: '/' });
-      res.clearCookie('refreshToken', { path: '/' });
+      res.clearCookie('accessToken', CLEAR_COOKIE_OPTIONS);
+      res.clearCookie('refreshToken', CLEAR_COOKIE_OPTIONS);
       errorResponse(res, 'Session expired, please login again', 401, 'REFRESH_FAILED');
       return;
     }
@@ -68,8 +75,8 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
   try {
     const refreshToken = req.cookies?.refreshToken as string | undefined;
     await authService.logoutAdmin(refreshToken);
-    res.clearCookie('accessToken', { path: '/' });
-    res.clearCookie('refreshToken', { path: '/' });
+    res.clearCookie('accessToken', CLEAR_COOKIE_OPTIONS);
+    res.clearCookie('refreshToken', CLEAR_COOKIE_OPTIONS);
     successResponse(res, null, 'Logged out successfully');
   } catch (err) {
     next(err);
