@@ -8,4 +8,8 @@ export const authApi = {
 
   me: () =>
     api.get<{ data: { admin: { id: string; email: string; createdAt: string } } }>('/auth/me'),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.put('/auth/password', { currentPassword, newPassword }),
 };
+

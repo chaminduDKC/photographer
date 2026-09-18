@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { loginSchema } from './auth.schema';
+import { loginSchema, changePasswordSchema } from './auth.schema';
 import * as authService from './auth.service';
 import { successResponse, errorResponse } from '../../utils/response.util';
 import { env } from '../../config/env';
@@ -92,6 +92,26 @@ export async function me(req: Request, res: Response, next: NextFunction): Promi
     }
     successResponse(res, { admin });
   } catch (err) {
+    next(err);
+  }
+}
+
+export async function changePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+    const { accessToken, refreshToken } = await authService.changePassword(
+      req.admin!.id,
+      currentPassword,
+      newPassword
+    );
+    res.cookie('accessToken', accessToken, ACCESS_COOKIE_OPTIONS);
+    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
+    successResponse(res, null, 'Password changed successfully');
+  } catch (err) {
+    if (err instanceof Error && err.message === 'INVALID_CURRENT_PASSWORD') {
+      errorResponse(res, 'Current password is incorrect', 400, 'INVALID_CURRENT_PASSWORD');
+      return;
+    }
     next(err);
   }
 }

@@ -68,3 +68,42 @@ export async function getAdminById(id: string) {
     select: { id: true, email: true, createdAt: true },
   });
 }
+
+export async function changePassword(
+  adminId: string,
+  currentPassword: string,
+  newPassword: string
+) {
+  const admin = await prisma.admin.findUnique({ where: { id: adminId } });
+  if (!admin) throw new Error('ADMIN_NOT_FOUND');
+
+  const valid = await bcrypt.compare(currentPassword, admin.passwordHash);
+  if (!valid) throw new Error('INVALID_CURRENT_PASSWORD');
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await prisma.admin.update({
+    where: { id: adminId },
+    data: { passwordHash },
+  });
+
+  // Revoke all previous refresh tokens for security
+  await prisma.refreshToken.updateMany({
+    where: { adminId },
+    data: { revoked: true },
+  });
+
+  // Issue new session tokens
+  const accessToken = signAccessToken({ adminId: admin.id, email: admin.email });
+  const refreshToken = signRefreshToken({ adminId: admin.id });
+  const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+
+  await prisma.refreshToken.create({
+    data: {
+      tokenHash,
+      adminId: admin.id,
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_MS),
+    },
+  });
+
+  return { accessToken, refreshToken };
+}

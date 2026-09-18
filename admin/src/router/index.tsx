@@ -11,6 +11,8 @@ const CategoriesPage = lazy(() => import('../pages/CategoriesPage').then((m) => 
 const AlbumsPage = lazy(() => import('../pages/AlbumsPage').then((m) => ({ default: m.AlbumsPage })));
 const CreateAlbumPage = lazy(() => import('../pages/CreateAlbumPage').then((m) => ({ default: m.CreateAlbumPage })));
 const AlbumDetailPage = lazy(() => import('../pages/AlbumDetailPage').then((m) => ({ default: m.AlbumDetailPage })));
+const ChangePasswordPage = lazy(() => import('../pages/ChangePasswordPage').then((m) => ({ default: m.ChangePasswordPage })));
+
 
 const Wrap = ({ children }: { children: React.ReactNode }) => (
   <Suspense fallback={<FullPageSpinner />}>{children}</Suspense>
@@ -33,6 +35,7 @@ export const router = createBrowserRouter([
           { path: '/albums', element: <Wrap><AlbumsPage /></Wrap> },
           { path: '/albums/new', element: <Wrap><CreateAlbumPage /></Wrap> },
           { path: '/albums/:id', element: <Wrap><AlbumDetailPage /></Wrap> },
+          { path: '/settings/password', element: <Wrap><ChangePasswordPage /></Wrap> },
         ],
       },
     ],

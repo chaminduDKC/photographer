@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FolderOpen, Images, Building2, LogOut, Camera, X } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, Images, Building2, LogOut, Camera, X, KeyRound } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useAuthStore } from '../../stores/auth.store';
 import { useMutation } from '@tanstack/react-query';
@@ -13,6 +13,11 @@ const NAV_ITEMS = [
   { to: '/categories', label: 'Categories', icon: FolderOpen },
   { to: '/albums', label: 'Albums', icon: Images },
 ];
+
+const SETTINGS_ITEMS = [
+  { to: '/settings/password', label: 'Change Password', icon: KeyRound },
+];
+
 
 interface SidebarProps {
   onCloseMobile?: () => void;
@@ -71,6 +76,32 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             key={to}
             to={to}
             end={end}
+            onClick={onCloseMobile}
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all',
+                isActive
+                  ? 'bg-primary-50 text-primary-600 font-semibold shadow-xs'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Icon className={cn('h-4 w-4', isActive ? 'text-primary-600' : 'text-slate-400')} />
+                <span>{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+
+        <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 mt-5">
+          Settings
+        </p>
+        {SETTINGS_ITEMS.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
             onClick={onCloseMobile}
             className={({ isActive }) =>
               cn(
