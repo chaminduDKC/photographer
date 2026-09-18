@@ -14,6 +14,8 @@ const app = express();
 const allowedOrigins = [
   ...env.ADMIN_ORIGIN.split(',').map((o) => o.trim()),
   ...env.WEBSITE_ORIGIN.split(',').map((o) => o.trim()),
+  'http://localhost:5174',
+  'http://localhost:3001'
 ];
 
 app.use(
