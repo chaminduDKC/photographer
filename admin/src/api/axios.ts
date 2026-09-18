@@ -1,15 +1,17 @@
 import axios from 'axios';
 import { useAuthStore } from '../stores/auth.store';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+
 export const api = axios.create({
-  baseURL: '/api',
+  baseURL: API_URL,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
 
 // Dedicated instance without interceptors for refreshing tokens to prevent recursion
 const refreshClient = axios.create({
-  baseURL: '/api',
+  baseURL: API_URL,
   withCredentials: true,
 });
 
