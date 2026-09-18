@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Admin {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  createdAt     DateTime       @default(now())
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  adminId   String
+  admin     Admin    @relation(fields: [adminId], references: [id])
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model BusinessInfo {
+  id        String   @id @default(uuid())
+  phone1    String
+  phone2    String?
+  whatsapp  String?
+  address   String
+  city      String
+  province  String
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id                String   @id @default(uuid())
+  name              String   @unique
+  slug              String   @unique
+  order             Int      @default(0)
+  thumbnailUrl      String
+  thumbnailPublicId String
+  albums            Album[]
+  createdAt         DateTime @default(now())
+
+  @@index([order])
+}
+
+model Album {
+  id                String   @id @default(uuid())
+  name              String
+  slug              String   @unique
+  thumbnailUrl      String
+  thumbnailPublicId String
+  isFeatured        Boolean  @default(false)
+  categoryId        String
+  category          Category @relation(fields: [categoryId], references: [id])
+  images            Image[]
+  createdAt         DateTime @default(now())
+
+  @@index([categoryId])
+  @@index([isFeatured])
+}
+
+model Image {
+  id           String   @id @default(uuid())
+  url          String
+  publicId     String
+  showInSlider Boolean  @default(false)
+  order        Int      @default(0)
+  albumId      String
+  album        Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  @@index([albumId])
+  @@index([showInSlider])
+}

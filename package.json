@@ -1,0 +1,20 @@
+{
+  "name": "Photographer-Site-1",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:admin": "cd admin && npm run dev -- --host",
+    "dev:website": "cd website && npm run dev -- --hostname 0.0.0.0",
+    "db:reset": "cd backend && npx prisma migrate reset",
+    "dev": "concurrently -n backend,admin,website -c cyan,magenta,blue \"npm run dev:backend\" \"npm run dev:admin\" \"npm run dev:website\"",
+    "build:backend": "cd backend && npm run build",
+    "build:admin": "cd admin && npm run build",
+    "build:website": "cd website && npm run build",
+    "build:all": "npm run build:backend && npm run build:admin && npm run build:website",
+    "install:all": "cd backend && npm install && cd ../admin && npm install && cd ../website && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
